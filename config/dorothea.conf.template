@@ -1,0 +1,40 @@
+# dorothea template (Kr point-like events -> kDST). Same values as the 2025 runs.
+# Placeholders: @IN@ @OUT@ @DETECTOR_DB@
+include('$ICDIR/config/s12_selector.conf')
+files_in    = '@IN@'
+file_out    = '@OUT@'
+compression = 'ZLIB4'
+run_number  = 0
+detector_db = '@DETECTOR_DB@'
+print_mod   = 100
+event_range = all
+
+drift_v     =      1    * mm / mus
+
+s1_nmin     =      1
+s1_nmax     =      1
+s1_emin     =      0    * pes
+s1_emax     =    500    * pes
+s1_wmin     =    100    * ns
+s1_wmax     =    700    * ns
+s1_hmin     =      0    * pes
+s1_hmax     =     30    * pes
+s1_ethr     =      0    * pes
+
+s2_nmin     =      1
+s2_nmax     =      2
+s2_emin     =    1e3    * pes
+s2_emax     =    1e8    * pes
+s2_wmin     =      1    * mus
+s2_wmax     =    100    * mus
+s2_hmin     =    100    * pes
+s2_hmax     =    1e5    * pes
+s2_ethr     =      1    * pes
+s2_nsipmmin =      2
+s2_nsipmmax =   1000
+
+global_reco_algo = corona
+global_reco_params = dict(Qthr = 4 * pes, Qlm = 4 * pes, lm_radius = 1,
+                          new_lm_radius = 2 * np.sqrt(2) * 15.55 + 0.1,
+                          msipm = 1, consider_masked = False)
+sipm_charge_type = raw

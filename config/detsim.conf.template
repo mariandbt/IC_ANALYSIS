@@ -1,0 +1,37 @@
+# detsim template. Same values as the 2025 runs (checked against /config/detsim stored in their outputs).
+# Placeholders filled by submit.sh: @IN@ @OUT@ @DETECTOR_DB@ @S2_TABLE@
+files_in    = '@IN@'
+file_out    = '@OUT@'
+event_range = all
+detector_db = '@DETECTOR_DB@'          # next100fibers (fibers) or next100 (PMTs)
+run_number  = 0
+
+# S1: the PMT table for both detectors. For fibers it is a placeholder (see notebooks/03_detsim.ipynb):
+# detsim.py:scale_and_repeat_s1 copies the 60 PMT S1 waveforms into 108 channels with scaling_factor = 1.
+s1_lighttable = '$ICDIR/database/test_data/NEXT100_S1_LT.h5'
+s2_lighttable = '@S2_TABLE@'            # fibers: 20250408_s2_table.h5 ; PMTs: $ICDIR/database/test_data/NEXT100_S2_LT.h5
+sipm_psf      = '$ICDIR/database/test_data/NEXT100_PSF.h5'
+
+physics_params = dict(ws = 39.2 * eV,
+                      wi = 22.4 * eV,
+                      fano_factor = 0.15,
+                      conde_policarpo_factor = 1.00,
+                      drift_velocity         = 1.00 * mm / mus,
+                      lifetime               = 12 * ms,
+                      transverse_diffusion   = 1.20 * mm / cm**0.5,   # IC default; NEXT-White at 10 bar: 1.07 (Simon 2018)
+                      longitudinal_diffusion = 0.30 * mm / cm**0.5,   # IC default; NEXT-White at 10 bar: 0.27
+                      el_gain                = 365,                    # IC default (2021). nexus at 10 bar, 13 kV/cm: 1050
+                      el_drift_velocity      = 2.5 * mm / mus)
+
+buffer_params = dict(EP_sensor_width   =  100 * ns,
+                     sipm_width        =    1 * mus,
+                     max_time          =   10 * ms,
+                     length            = 1500 * mus,
+                     pre_trigger       =  100 * mus,
+                     trigger_thr       =    0)
+
+compression = 'ZLIB4'
+print_mod   = 100
+rate        = 0.5 * hertz
+data_mc_ratio_EP   = 1
+data_mc_ratio_sipm = 1

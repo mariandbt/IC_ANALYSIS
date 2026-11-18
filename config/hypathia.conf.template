@@ -1,0 +1,37 @@
+# hypathia template (peak finding on the detsim waveforms). Same values as the 2025 runs.
+# Placeholders: @IN@ @OUT@ @DETECTOR_DB@
+files_in    = '@IN@'
+file_out    = '@OUT@'
+compression = 'ZLIB4'
+run_number  = 0
+detector_db = '@DETECTOR_DB@'
+print_mod   = 100
+event_range = all
+
+EP_wfs_rebin    = 1
+EP_pe_rms       = 0.4 * pes
+sipm_noise_cut  = 1.0 * pes
+filter_padding  = 50
+
+thr_csum_s1 = 0.1 * pes
+thr_csum_s2 = 0.1 * pes
+thr_sipm      = 1.0 * pes
+thr_sipm_type = common
+
+s1_tmin       =  99 * mus   # detsim puts S1 at the pre-trigger, 100 mus
+s1_tmax       = 101 * mus
+s1_stride     =   1
+s1_lmin       =   1
+s1_lmax       =  40
+s1_rebin_stride = 1
+
+s2_tmin     =    101 * mus
+s2_tmax     =   1499 * mus  # detsim buffer length is 1500 mus
+s2_stride   =     10
+s2_lmin     =     20
+s2_lmax     = 100000
+s2_rebin_stride = 10
+
+thr_sipm_s2   = 5 * pes
+EP_samp_wid   = 100 * ns
+sipm_samp_wid = 1 * mus

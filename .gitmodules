@@ -1,0 +1,8 @@
+[submodule "external/IC"]
+	path = external/IC
+	url = git@github.com:mariandbt/IC.git
+	branch = fibers
+[submodule "external/python_cluster"]
+	path = external/python_cluster
+	url = git@github.com:mariandbt/python_cluster.git
+	branch = master
