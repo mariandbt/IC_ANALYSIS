@@ -33,7 +33,8 @@ def old_files(sample, det, city):
         sub = "PMTs/" if (det == "pmts" and city == "detsim") else ""
         suf = "_PMTs" if det == "pmts" else ""
         fs = glob.glob(f"{OLD_IC_DIR}/{city}/{sub}{sample}_*{suf}.{city}.h5")
-        if det == "fibers": fs = [f for f in fs if "_PMTs" not in f and "TEST" not in f]
+        fs = [f for f in fs if "TEST" not in f]
+        if det == "fibers": fs = [f for f in fs if "_PMTs" not in f]
         return sorted(fs, key=lambda p: file_index(p.replace("_PMTs", "")))
     return []
 
