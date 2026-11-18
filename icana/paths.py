@@ -3,7 +3,7 @@ import os, glob
 
 NEXUS_DIR   = os.environ.get("NEXUS_DIR",  "/data/marian/s2simulation")
 OLD_IC_DIR  = os.environ.get("OLD_IC_DIR", "/data/marian/IC")
-ICA_OUT     = os.environ.get("ICA_OUT",    "/data/marian/IC_ANALYSIS")
+ICA_OUT     = os.environ.get("ICA_OUT",    "/scratch/marian/IC_ANALYSIS_OUT")
 ICDIR       = os.environ.get("ICDIR",      "")
 OLD_ICCOURSE = "/scratch/marian/ic-course/data"          # matched 1Kev Dorothea outputs (2025)
 
