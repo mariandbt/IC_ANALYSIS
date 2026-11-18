@@ -18,8 +18,10 @@ physics_params = dict(ws = 39.2 * eV,
                       conde_policarpo_factor = 1.00,
                       drift_velocity         = 1.00 * mm / mus,
                       lifetime               = 12 * ms,
-                      transverse_diffusion   = 1.20 * mm / cm**0.5,   # IC default; NEXT-White at 10 bar: 1.07 (Simon 2018)
-                      longitudinal_diffusion = 0.30 * mm / cm**0.5,   # IC default; NEXT-White at 10 bar: 0.27
+                      # Simon et al. 2018 (JINST 13 P07013): NEXT-White Kr data at 7.2 bar, 53.6 V/cm/bar, scaled to 10 bar
+                      # (D ~ 1/sqrt(p)); valid for ~540 V/cm drift at 10 bar. IC defaults were 1.20 / 0.30 (no source).
+                      transverse_diffusion   = 1.072 * mm / cm**0.5,
+                      longitudinal_diffusion = 0.267 * mm / cm**0.5,
                       el_gain                = @EL_GAIN@,              # set by EL_GAIN in env.sh (see README: EL gain)
                       el_drift_velocity      = 2.5 * mm / mus)
 

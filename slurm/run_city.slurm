@@ -10,7 +10,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=8G
+#SBATCH --mem=12G
 #SBATCH --output=logs/%x_%A_%a.out
 #SBATCH --error=logs/%x_%A_%a.err
 #SBATCH --mail-user=mariandelbarrio@gmail.com

@@ -19,9 +19,10 @@ export NEXUS_DIR=/data/marian/s2simulation          # nexus inputs: Kr/, bb/, ie
 export OLD_IC_DIR=/data/marian/IC                    # 2025 outputs (detsim/, hypathia/, dorothea/, LT/)
 export ICA_OUT=/scratch/marian/IC_ANALYSIS_OUT       # new outputs: <sample>/<detector>/<city>/ (jobs cannot write /data)
 # EL gain (photons per electron) used by detsim; outputs go to <sample>/<det>_g<EL_GAIN>/<city>/
-# 782 = NEXT-100 now: Monteiro 2007 (in NEXT2009 eq. 2.13), eta = 140 (E/p - 0.83) p dx with E/p = 2.27 kV/cm/bar,
-# p = 4 bar, dx = 0.97 cm (MartinezLema2025, Table 1 and Sec. 2). 2025 runs used 365 (IC default).
-export EL_GAIN=${EL_GAIN:-782}
+# 1050 = the gain nexus used for the S2 table runs: XenonELLightYield (Monteiro 2007 form, Freitas 2010 slope 170 for
+# p >= 8 bar) at 10 bar and 13 kV/cm (1.3 kV/cm/bar, NEXT-White's operating point at 10.2 bar, NEXT2nu) over 1 cm.
+# Other values: 365 (IC default, 2025 runs), 782 (NEXT-100 at 4 bar now). See README "EL gain and diffusion".
+export EL_GAIN=${EL_GAIN:-1050}
 export S2_TABLE_FIBERS=/data/marian/IC/LT/20250408_s2_table.h5
 
 echo "IC_ANALYSIS: IC from $ICTDIR ($(git -C "$ICTDIR" rev-parse --short HEAD)), env $IC_ENV"

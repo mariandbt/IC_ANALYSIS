@@ -81,13 +81,15 @@ cd /scratch/marian/IC_ANALYSIS && source env.sh
 
 ## Settings (same as 2025, see the stored /config in every output)
 - Pressure 10 bar (nexus), lifetime 12 ms, drift velocity 1 mm/µs, Fano 0.15, W_i 22.4 eV.
-- **EL gain `EL_GAIN = 782` photons/e⁻ (env.sh)**: NEXT-100 as it runs now. Monteiro et al. 2007 (quoted as eq. 2.13 of
-  the NEXT 2009 proposal): η = 140 (E/p − 0.83) p Δx, with E/p = 2.27 kV/cm/bar and p = 4 bar (Kr run June–Sept 2025,
-  MartinezLema2025 Table 1) and Δx = 0.97 cm (same paper, Sec. 2) → η ≈ 782. The 2025 runs used 365 (IC default).
-  Outputs carry the gain in their path (`<det>_g782/`), so runs with different gains never mix.
-  Note: the nexus samples are at 10 bar; at 10 bar the same E/p would give η ≈ 1955 but needs a 22 kV gate (design limit
-  20 kV, NEXT-100 detector paper), and 20 kV at 10 bar gives E/p = 2.06 → η ≈ 1673. Change with `EL_GAIN=<value> ./submit.sh ...`.
-- Diffusion 1.20 / 0.30 mm/√cm (IC defaults). NEXT-White at 10 bar: 1.07 / 0.27 (Simón et al. 2018).
+- **EL gain and diffusion (choice A, 2026-11-18): a 10-bar detector with sourced parameters.**
+  - `EL_GAIN = 1050` ph/e⁻ (env.sh): the yield nexus used for the S2 table runs (`XenonELLightYield`: Monteiro 2007 form
+    with the Freitas 2010 slope, 170 for p ≥ 8 bar) at 10 bar and 13 kV/cm = 1.3 kV/cm/bar over a 1 cm gap. 1.3 kV/cm/bar
+    at 10.2 bar is how NEXT-White ran (NEXT2nu). Other formulas give 660 (Monteiro, a = 140) or 778 (NEXT-White Kr paper,
+    Y/P = 136 E/P − 99) at the same field: the absolute gain is uncertain by ~±25 %.
+  - Diffusion 1.072 / 0.267 mm/√cm: Simón et al. 2018, NEXT-White Kr data at 7.2 bar scaled to 10 bar (valid at
+    ~54 V/cm/bar, i.e. ~540 V/cm). IC defaults were 1.20 / 0.30 with no stated source.
+  - Other gains: 365 (IC default, 2025 runs), 782 (NEXT-100 at 4 bar now). Run with `EL_GAIN=<value> ./submit.sh ...`;
+    outputs carry the gain in their path (`<det>_g1050/`).
 - S2 tables: fibers `20250408_s2_table.h5` (per EL photon, from the 500 × 100k `20240405_Next100_ie_s2` runs);
   PMTs IC `NEXT100_S2_LT.h5`. At R < 30 mm: fibers 1.35 %, PMTs 0.87 % per EL photon (ratio 1.56).
 - S1: the PMT table for both. For fibers it is a placeholder: `scale_and_repeat_s1` copies the 60 PMT S1
