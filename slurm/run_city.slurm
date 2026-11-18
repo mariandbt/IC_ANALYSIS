@@ -28,7 +28,7 @@ OUT=${OUT_PATTERN//@I@/$i}
 [ -f "$OUT" ] && [ -z "${ICA_FORCE:-}" ] && { echo "task $i: $OUT exists, skipping"; exit 0; }
 mkdir -p "$OUT_DIR" work/configs
 CONF=work/configs/${SAMPLE}_${DET}_${CITY}_${i}.conf      # kept for provenance (IC also stores it in the output)
-sed -e "s|@IN@|$IN|" -e "s|@OUT@|$OUT.part|" -e "s|@DETECTOR_DB@|$DB|" -e "s|@S2_TABLE@|$S2|" \
+sed -e "s|@IN@|$IN|" -e "s|@OUT@|$OUT.part|" -e "s|@DETECTOR_DB@|$DB|" -e "s|@S2_TABLE@|$S2|" -e "s|@EL_GAIN@|$EL_GAIN|" \
     config/$CITY.conf.template > "$CONF"
 echo "task $i: $CITY $DET  $IN -> $OUT  (IC $(git -C "$ICTDIR" rev-parse --short HEAD), node $(hostname))"
 

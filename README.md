@@ -35,7 +35,7 @@ logs/, work/           slurm logs and per-task configs (not in git)
 `00_pipeline_and_inventory` checks that all inputs exist, are readable and were made with the same settings.
 
 ## Where files go (Hyperion rules)
-- Jobs read inputs from `/data` (read-only on compute nodes) and write to **`$ICA_OUT=/scratch/marian/IC_ANALYSIS_OUT/<sample>/<fibers|pmts>/<city>/`**.
+- Jobs read inputs from `/data` (read-only on compute nodes) and write to **`$ICA_OUT=/scratch/marian/IC_ANALYSIS_OUT/<sample>/<fibers|pmts>_g<EL_GAIN>/<city>/`**.
 - `/scratch` has no backup and must stay below 80 % full; quota 2 TB. When a step is finished, copy it to
   `/data/marian/IC_ANALYSIS` from a **login node** with `bash tools/store.sh <sample>`, then delete it from `/scratch`.
 - The 2025 outputs in `/data/marian/IC` are never written.
@@ -51,6 +51,12 @@ squeue -u marian ;  seff <jobid>      # memory/time actually used
 ```
 Jobs use `qos=serial` (1 CPU, up to 1000 running, 2 days). A task writes `<file>.part` and renames it only
 when the file is complete and readable; tasks with an existing output are skipped (`--force` to redo).
+
+## Running a notebook as a job (checks without an interactive session)
+```bash
+sbatch slurm/run_notebook.slurm notebooks/05_dorothea_kr.ipynb                    # executed copy in work/executed/
+sbatch --qos=test --time=00:10:00 slurm/run_notebook.slurm notebooks/02_light_tables.ipynb   # quick, high priority
+```
 
 ## Working interactively
 **Terminal on a compute node** (never compute on the login nodes):
@@ -75,7 +81,12 @@ cd /scratch/marian/IC_ANALYSIS && source env.sh
 
 ## Settings (same as 2025, see the stored /config in every output)
 - Pressure 10 bar (nexus), lifetime 12 ms, drift velocity 1 mm/µs, Fano 0.15, W_i 22.4 eV.
-- `el_gain = 365` (IC default). nexus at 10 bar and 13 kV/cm gives 1050 ph/e. Open choice.
+- **EL gain `EL_GAIN = 782` photons/e⁻ (env.sh)**: NEXT-100 as it runs now. Monteiro et al. 2007 (quoted as eq. 2.13 of
+  the NEXT 2009 proposal): η = 140 (E/p − 0.83) p Δx, with E/p = 2.27 kV/cm/bar and p = 4 bar (Kr run June–Sept 2025,
+  MartinezLema2025 Table 1) and Δx = 0.97 cm (same paper, Sec. 2) → η ≈ 782. The 2025 runs used 365 (IC default).
+  Outputs carry the gain in their path (`<det>_g782/`), so runs with different gains never mix.
+  Note: the nexus samples are at 10 bar; at 10 bar the same E/p would give η ≈ 1955 but needs a 22 kV gate (design limit
+  20 kV, NEXT-100 detector paper), and 20 kV at 10 bar gives E/p = 2.06 → η ≈ 1673. Change with `EL_GAIN=<value> ./submit.sh ...`.
 - Diffusion 1.20 / 0.30 mm/√cm (IC defaults). NEXT-White at 10 bar: 1.07 / 0.27 (Simón et al. 2018).
 - S2 tables: fibers `20250408_s2_table.h5` (per EL photon, from the 500 × 100k `20240405_Next100_ie_s2` runs);
   PMTs IC `NEXT100_S2_LT.h5`. At R < 30 mm: fibers 1.35 %, PMTs 0.87 % per EL photon (ratio 1.56).

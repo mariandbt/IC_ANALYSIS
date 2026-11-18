@@ -12,10 +12,10 @@ ica_setup () {
   esac
   case $CITY in
     detsim)   IN_PATTERN="$NEXUS_DIR/$SUB/${SAMPLE}_@I@.next.h5" ;;
-    hypathia) IN_PATTERN="$ICA_OUT/$SAMPLE/$DET/detsim/${SAMPLE}_@I@.detsim.h5" ;;
-    dorothea) IN_PATTERN="$ICA_OUT/$SAMPLE/$DET/hypathia/${SAMPLE}_@I@.hypathia.h5" ;;
+    hypathia) IN_PATTERN="$ICA_OUT/$SAMPLE/${DET}_g$EL_GAIN/detsim/${SAMPLE}_@I@.detsim.h5" ;;
+    dorothea) IN_PATTERN="$ICA_OUT/$SAMPLE/${DET}_g$EL_GAIN/hypathia/${SAMPLE}_@I@.hypathia.h5" ;;
     *) echo "city must be detsim, hypathia or dorothea"; return 1;;
   esac
-  OUT_DIR="$ICA_OUT/$SAMPLE/$DET/$CITY"
+  OUT_DIR="$ICA_OUT/$SAMPLE/${DET}_g$EL_GAIN/$CITY"
   OUT_PATTERN="$OUT_DIR/${SAMPLE}_@I@.$CITY.h5"
 }

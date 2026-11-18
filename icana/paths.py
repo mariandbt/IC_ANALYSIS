@@ -11,9 +11,12 @@ S2_TABLE_FIBERS = "/data/marian/IC/LT/20250408_s2_table.h5"
 S2_TABLE_PMTS   = os.path.join(ICDIR, "database/test_data/NEXT100_S2_LT.h5")
 S1_TABLE_PMTS   = os.path.join(ICDIR, "database/test_data/NEXT100_S1_LT.h5")
 
-def new_files(sample, det, city):
-    """Outputs of this repository: $ICA_OUT/<sample>/<det>/<city>/<sample>_<i>.<city>.h5, sorted by index."""
-    fs = glob.glob(os.path.join(ICA_OUT, sample, det, city, f"{sample}_*.{city}.h5"))
+EL_GAIN = int(os.environ.get("EL_GAIN", 782))
+
+def new_files(sample, det, city, el_gain=None):
+    """Outputs of this repository: $ICA_OUT/<sample>/<det>_g<gain>/<city>/<sample>_<i>.<city>.h5, sorted by index."""
+    g = EL_GAIN if el_gain is None else el_gain
+    fs = glob.glob(os.path.join(ICA_OUT, sample, f"{det}_g{g}", city, f"{sample}_*.{city}.h5"))
     return sorted(fs, key=file_index)
 
 def file_index(path):

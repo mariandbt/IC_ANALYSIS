@@ -1,5 +1,5 @@
 # detsim template. Same values as the 2025 runs (checked against /config/detsim stored in their outputs).
-# Placeholders filled by submit.sh: @IN@ @OUT@ @DETECTOR_DB@ @S2_TABLE@
+# Placeholders filled by submit.sh / run_city.slurm: @IN@ @OUT@ @DETECTOR_DB@ @S2_TABLE@ @EL_GAIN@
 files_in    = '@IN@'
 file_out    = '@OUT@'
 event_range = all
@@ -20,7 +20,7 @@ physics_params = dict(ws = 39.2 * eV,
                       lifetime               = 12 * ms,
                       transverse_diffusion   = 1.20 * mm / cm**0.5,   # IC default; NEXT-White at 10 bar: 1.07 (Simon 2018)
                       longitudinal_diffusion = 0.30 * mm / cm**0.5,   # IC default; NEXT-White at 10 bar: 0.27
-                      el_gain                = 365,                    # IC default (2021). nexus at 10 bar, 13 kV/cm: 1050
+                      el_gain                = @EL_GAIN@,              # set by EL_GAIN in env.sh (see README: EL gain)
                       el_drift_velocity      = 2.5 * mm / mus)
 
 buffer_params = dict(EP_sensor_width   =  100 * ns,

@@ -21,7 +21,7 @@ for ((i=FIRST; i<=LAST; i++)); do
   in=${IN_PATTERN//@I@/$i}; out=${OUT_PATTERN//@I@/$i}
   if [ ! -f "$in" ]; then MISSING+=($i); elif [ -f "$out" ] && [ $FORCE = 0 ]; then DONE+=($i); else TODO+=($i); fi
 done
-echo "city=$CITY detector=$DET ($DB) sample=$SAMPLE files $FIRST-$LAST"
+echo "city=$CITY detector=$DET ($DB) sample=$SAMPLE files $FIRST-$LAST  el_gain=$EL_GAIN"
 echo "  input : $IN_PATTERN"
 echo "  output: $OUT_PATTERN"
 echo "  to run: ${#TODO[@]}   already done: ${#DONE[@]} ${DONE[*]:-}   missing input: ${#MISSING[@]} ${MISSING[*]:-}"
@@ -29,12 +29,12 @@ echo "  to run: ${#TODO[@]}   already done: ${#DONE[@]} ${DONE[*]:-}   missing i
 
 i=${TODO[0]}
 echo "---- config of task $i (first lines) ----"
-sed -e "s|@IN@|${IN_PATTERN//@I@/$i}|" -e "s|@OUT@|${OUT_PATTERN//@I@/$i}|" -e "s|@DETECTOR_DB@|$DB|" -e "s|@S2_TABLE@|$S2|" \
+sed -e "s|@IN@|${IN_PATTERN//@I@/$i}|" -e "s|@OUT@|${OUT_PATTERN//@I@/$i}|" -e "s|@DETECTOR_DB@|$DB|" -e "s|@S2_TABLE@|$S2|" -e "s|@EL_GAIN@|$EL_GAIN|" \
     config/$CITY.conf.template | grep -v '^\s*#' | grep -v '^\s*$' | head -8; echo "   ..."
 
 # compress 1,2,3,5 -> 1-3,5
 ARRAY=$(printf "%s\n" "${TODO[@]}" | awk 'NR==1{s=p=$1;next} $1==p+1{p=$1;next} {printf "%s%s,", s, (s==p?"":"-"p); s=p=$1} END{printf "%s%s\n", s, (s==p?"":"-"p)}')
-[ $FORCE = 1 ] && EXTRA=" --export=ALL,ICA_FORCE=1" || EXTRA=""
+EXTRA=" --export=ALL,EL_GAIN=$EL_GAIN"; [ $FORCE = 1 ] && EXTRA="$EXTRA,ICA_FORCE=1"
 CMD="sbatch --array=$ARRAY$EXTRA slurm/run_city.slurm $CITY $DET $SAMPLE"
 echo "---- command ----"; echo "$CMD"
 if [ $SUBMIT = 1 ]; then mkdir -p "$OUT_DIR"; $CMD; else echo "(dry run: add --submit, or paste the command)"; fi
