@@ -10,6 +10,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --time=08:00:00
+#SBATCH --mail-user=mariandelbarrio@gmail.com
+#SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --output=/scratch/%u/vscode-%j.out
 #SBATCH --error=/scratch/%u/vscode-%j.err
 module load DIPC-Utils/0.0.2

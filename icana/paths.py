@@ -11,18 +11,28 @@ S2_TABLE_FIBERS = "/data/marian/IC/LT/20250408_s2_table.h5"
 S2_TABLE_PMTS   = os.path.join(ICDIR, "database/test_data/NEXT100_S2_LT.h5")
 S1_TABLE_PMTS   = os.path.join(ICDIR, "database/test_data/NEXT100_S1_LT.h5")
 
-EL_GAIN = int(os.environ.get("EL_GAIN", 782))
+EL_GAIN = int(os.environ.get("EL_GAIN", 1050))   # same default as env.sh (the Jupyter kernel does not pass EL_GAIN)
 
 def new_files(sample, det, city, el_gain=None):
     """Outputs of this repository: $ICA_OUT/<sample>/<det>_g<gain>/<city>/<sample>_<i>.<city>.h5, sorted by index."""
     g = EL_GAIN if el_gain is None else el_gain
     fs = glob.glob(os.path.join(ICA_OUT, sample, f"{det}_g{g}", city, f"{sample}_*.{city}.h5"))
-    return sorted(fs, key=file_index)
+    return sorted(fs, key=lambda p: (file_index(p), chunk_index(p) or 0))
+
+def _numbers(path):
+    """Trailing numbers of the name: <sample>_<i> -> [i]; chunk files <sample>_<i>_<c> -> [i, c]."""
+    toks = os.path.basename(path).split(".")[0].split("_")
+    out = []
+    while toks and toks[-1].isdigit(): out.insert(0, int(toks.pop()))
+    return out[-2:] if len(out) >= 2 and not toks[-1].endswith("ev") else out[-1:]
 
 def file_index(path):
-    base = os.path.basename(path).split(".")[0]
-    try:    return int(base.rsplit("_", 1)[1])
-    except: return -1
+    """File number i of <sample>_<i>[_<c>].<city>.h5 (-1 if none)."""
+    n = _numbers(path); return n[0] if n else -1
+
+def chunk_index(path):
+    """Chunk number c of <sample>_<i>_<c>.<city>.h5, None for whole-file outputs."""
+    n = _numbers(path); return n[1] if len(n) == 2 else None
 
 # 2025 outputs, for comparison (produced with the same configs, IC fibers branch)
 OLD = {

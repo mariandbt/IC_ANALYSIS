@@ -2,7 +2,7 @@
 # Placeholders filled by submit.sh / run_city.slurm: @IN@ @OUT@ @DETECTOR_DB@ @S2_TABLE@ @EL_GAIN@
 files_in    = '@IN@'
 file_out    = '@OUT@'
-event_range = all
+event_range = @EVENT_RANGE@               # set by run_city.slurm: all, or <first>, <stop> for a chunk
 detector_db = '@DETECTOR_DB@'          # next100fibers (fibers) or next100 (PMTs)
 run_number  = 0
 

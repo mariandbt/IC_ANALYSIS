@@ -2,7 +2,9 @@
 # Execute a notebook on a compute node and save the executed copy (with outputs) in work/executed/.
 #   sbatch slurm/run_notebook.slurm notebooks/00_pipeline_and_inventory.ipynb
 # Quick checks (<10 min, high priority):  sbatch --qos=test --time=00:10:00 slurm/run_notebook.slurm <notebook>
-#SBATCH --job-name=nb
+#SBATCH --mail-user=mariandelbarrio@gmail.com
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --job-name=notebook
 #SBATCH --partition=general
 #SBATCH --qos=regular
 #SBATCH --time=02:00:00

@@ -2,7 +2,7 @@
 # Job 0: slim copies of the Kr nexus inputs (drop the ie- rows of /MC/particles), one file per task.
 #   sbatch --array=1 slurm/slim_nexus.slurm 20250626_Next100_50Kev_ELoff_Kr
 # Output: $ICA_OUT/nexus_slim/<subfolder>/<sample>_<i>.next.h5 ; copy to /data from the login node afterwards.
-#SBATCH --job-name=slim
+#SBATCH --job-name=slim_nexus
 #SBATCH --partition=general
 #SBATCH --qos=serial
 #SBATCH --time=03:00:00
@@ -13,7 +13,7 @@
 #SBATCH --output=logs/%x_%A_%a.out
 #SBATCH --error=logs/%x_%A_%a.err
 #SBATCH --mail-user=mariandelbarrio@gmail.com
-#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=BEGIN,END,FAIL
 
 set -eo pipefail
 export PYTHONUNBUFFERED=1

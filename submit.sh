@@ -41,6 +41,6 @@ sed -e "s|@IN@|${IN_PATTERN//@I@/$i}|" -e "s|@OUT@|${OUT_PATTERN//@I@/$i}|" -e "
 ARRAY=$(printf "%s\n" "${TODO[@]}" | awk 'NR==1{s=p=$1;next} $1==p+1{p=$1;next} {printf "%s%s,", s, (s==p?"":"-"p); s=p=$1} END{printf "%s%s\n", s, (s==p?"":"-"p)}')
 EXTRA=" --export=ALL,EL_GAIN=$EL_GAIN"; [ $FORCE = 1 ] && EXTRA="$EXTRA,ICA_FORCE=1"
 [ -n "$AFTER" ] && EXTRA="$EXTRA --dependency=aftercorr:$AFTER"
-CMD="sbatch --parsable --array=$ARRAY$EXTRA slurm/run_city.slurm $CITY $DET $SAMPLE"
+CMD="sbatch --parsable --job-name=${CITY}_${DET} --array=$ARRAY$EXTRA slurm/run_city.slurm $CITY $DET $SAMPLE"
 echo "---- command ----"; echo "$CMD"
 if [ $SUBMIT = 1 ]; then mkdir -p "$OUT_DIR"; $CMD; else echo "(dry run: add --submit, or paste the command)"; fi
