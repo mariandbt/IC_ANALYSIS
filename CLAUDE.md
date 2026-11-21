@@ -48,11 +48,15 @@ to 10 bar), lifetime 12 ms. The 2025 runs used gain 365 and IC-default diffusion
 2025 fibers Kr result (reproduced): 3.84 % FWHM after lifetime correction, τ = 12.44 ms, 5165 events, R < 30 mm.
 Fiber S1 in detsim is a placeholder (60 PMT S1 waveforms copied into 108 channels): see 03 and 07.
 
-## Status (2026-11-19)
+## Status (2026-11-21)
 - Job 0 done (jobs 8049441, 8065923): all 40 slim files in `/data/marian/s2simulation/Kr_slim/` (2.9 GB, all checks
   passed, 50 000 events each). `samples.sh` points the 50Kev sample at `Kr_slim`.
-- Detsim test, file 1 chunk 0, gain 1050, 4 GB: fibers 8066025, PMTs 8066026. When done: `seff <jobid>_1`
-  (time, memory) to size the full run (40 files × 5 chunks per detector) — ask Marian before launching it.
+- Detsim test done (2026-11-21 check): fibers 8066025 = 4 h 25 min, 1.52 GB peak; PMTs 8066026 = 1 h 06 min,
+  1.42 GB peak (1 CPU, 4 GB asked, 99 % CPU). Each output has 10 000 events = nexus events 0-9999 (fibers 251 MB,
+  PMTs 205 MB). Output `evt_number` = 7 x nexus event_id: normal IC (max_subevt = ceil(max_time/buffer_length) = 7).
+- Full detsim LAUNCHED 2026-11-21: fibers 8100528, PMTs 8100529 (array 2-200). Command: `./submit.sh detsim <fibers|pmts> 20250626_Next100_50Kev_ELoff_Kr --chunks 5x10000
+  --mem 4G --time 12:00:00` (dry run; array 2-200, task 1 already done). submit.sh now has `--chunks NxE`, `--mem`,
+  `--time`; use the same `--chunks` for hypathia/dorothea. Ask Marian before `--submit`.
 - Before hypathia: its input path in `pipeline.sh` still points to `$ICA_OUT` (scratch); change it to the
   `/data` copy (`/data/marian/IC_ANALYSIS/...`, see `tools/store.sh`).
 - `icana/paths`: `file_index` / `chunk_index` handle chunk files `<sample>_<i>_<c>`; `EL_GAIN` defaults to 1050.
