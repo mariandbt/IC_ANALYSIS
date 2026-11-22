@@ -148,10 +148,15 @@ _DST_PANELS = [("S1e", np.linspace(0, 60, 51), "S1 energy (pes)"),
                ("Z", np.linspace(0, 1500, 51), "Z (mm)")]
 
 
-def dst_overview(dst, label):
-    """Distributions of the kDST variables and the x-y map (2025 plots)."""
+def _panels(gain_scale=1.0):
+    """_DST_PANELS with the S2e and S2q ranges multiplied by gain_scale (e.g. 1050/365 for the new runs)."""
+    return [(c, b * gain_scale if c in ("S2e", "S2q") else b, xl) for c, b, xl in _DST_PANELS]
+
+
+def dst_overview(dst, label, gain_scale=1.0):
+    """Distributions of the kDST variables and the x-y map (2025 plots). gain_scale: see _panels."""
     fig, axs = plt.subplots(2, 4, figsize=(32, 14)); axs = axs.ravel()
-    for ax, (col, bins, xl) in zip(axs, _DST_PANELS):
+    for ax, (col, bins, xl) in zip(axs, _panels(gain_scale)):
         ax.hist(dst[col], bins, histtype="step", color="r", lw=3); ax.set_xlabel(xl); ax.grid()
     h = axs[7].hist2d(dst.X, dst.Y, np.linspace(-500, 500, 26), cmin=1); fig.colorbar(h[3], ax=axs[7])
     axs[7].set_xlabel("x (mm)"); axs[7].set_ylabel("y (mm)"); axs[7].set_aspect("equal")
@@ -159,10 +164,10 @@ def dst_overview(dst, label):
     return fig
 
 
-def dst_compare(dst_fib, dst_pmt, title=""):
+def dst_compare(dst_fib, dst_pmt, title="", gain_scale=1.0):
     """Same panels, fibers (red) vs PMTs (black), with the ratio of the means for S1e and S2e (2025 plots)."""
     fig, axs = plt.subplots(2, 4, figsize=(32, 14)); axs = axs.ravel()
-    for ax, (col, bins, xl) in zip(axs, _DST_PANELS):
+    for ax, (col, bins, xl) in zip(axs, _panels(gain_scale)):
         ax.hist(dst_pmt[col], bins, histtype="step", color="k", lw=3, label="PMTs")
         ax.hist(dst_fib[col], bins, histtype="step", color="r", lw=3, label="Fibers")
         if col in ("S1e", "S2e"):

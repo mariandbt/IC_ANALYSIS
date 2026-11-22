@@ -4,6 +4,7 @@ import os, glob
 NEXUS_DIR   = os.environ.get("NEXUS_DIR",  "/data/marian/s2simulation")
 OLD_IC_DIR  = os.environ.get("OLD_IC_DIR", "/data/marian/IC")
 ICA_OUT     = os.environ.get("ICA_OUT",    "/scratch/marian/IC_ANALYSIS_OUT")
+ICA_STORE   = os.environ.get("ICA_STORE",  "/data/marian/IC_ANALYSIS")   # long-term copies (tools/store.sh)
 ICDIR       = os.environ.get("ICDIR",      "")
 OLD_ICCOURSE = "/scratch/marian/ic-course/data"          # matched 1Kev Dorothea outputs (2025)
 
@@ -14,9 +15,12 @@ S1_TABLE_PMTS   = os.path.join(ICDIR, "database/test_data/NEXT100_S1_LT.h5")
 EL_GAIN = int(os.environ.get("EL_GAIN", 1050))   # same default as env.sh (the Jupyter kernel does not pass EL_GAIN)
 
 def new_files(sample, det, city, el_gain=None):
-    """Outputs of this repository: $ICA_OUT/<sample>/<det>_g<gain>/<city>/<sample>_<i>.<city>.h5, sorted by index."""
+    """Outputs of this repository: <root>/<sample>/<det>_g<gain>/<city>/<sample>_<i>.<city>.h5, sorted by index.
+    Looks in $ICA_OUT (/scratch) first and, if nothing is there, in $ICA_STORE (/data, after tools/store.sh)."""
     g = EL_GAIN if el_gain is None else el_gain
-    fs = glob.glob(os.path.join(ICA_OUT, sample, f"{det}_g{g}", city, f"{sample}_*.{city}.h5"))
+    for root in (ICA_OUT, ICA_STORE):
+        fs = glob.glob(os.path.join(root, sample, f"{det}_g{g}", city, f"{sample}_*.{city}.h5"))
+        if fs: break
     return sorted(fs, key=lambda p: (file_index(p), chunk_index(p) or 0))
 
 def _numbers(path):
