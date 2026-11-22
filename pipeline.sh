@@ -14,7 +14,8 @@ ica_setup () {
     detsim)   IN_PATTERN="$NEXUS_DIR/$SUB/${SAMPLE}_@I@.next.h5" ;;
     hypathia) D="$ICA_OUT"; [ -d "$ICA_STORE/$SAMPLE/${DET}_g$EL_GAIN/detsim" ] && D="$ICA_STORE"
               IN_PATTERN="$D/$SAMPLE/${DET}_g$EL_GAIN/detsim/${SAMPLE}_@I@.detsim.h5" ;;
-    dorothea) IN_PATTERN="$ICA_OUT/$SAMPLE/${DET}_g$EL_GAIN/hypathia/${SAMPLE}_@I@.hypathia.h5" ;;
+    dorothea) D="$ICA_OUT"; [ -d "$ICA_STORE/$SAMPLE/${DET}_g$EL_GAIN/hypathia" ] && D="$ICA_STORE"
+              IN_PATTERN="$D/$SAMPLE/${DET}_g$EL_GAIN/hypathia/${SAMPLE}_@I@.hypathia.h5" ;;
     *) echo "city must be detsim, hypathia or dorothea"; return 1;;
   esac
   OUT_DIR="$ICA_OUT/$SAMPLE/${DET}_g$EL_GAIN/$CITY"
