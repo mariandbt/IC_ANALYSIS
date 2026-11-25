@@ -29,7 +29,8 @@ Read `README.md` for the layout. Work in English. Explain simply and step by ste
 | 2 hypathia | detsim output | same chunks | hypathia: S1/S2 peak finding | `.hypathia.h5` (PMAPs) |
 | 3 dorothea | hypathia output | same chunks | dorothea: Kr point reconstruction | `.dorothea.h5` (kDST) → `05_dorothea_kr` |
 
-Outputs: `$ICA_OUT=/scratch/marian/IC_ANALYSIS_OUT/<sample>/<fibers|pmts>_g<EL_GAIN>/<city>/`.
+Outputs (since 2026-11-25): `<root>/<city>/<fibers|pmts>/g<EL_GAIN>/<sample>_<i>[_<c>].<city>.h5`, root = `$ICA_OUT`
+(/scratch, jobs write) or `$ICA_STORE` (/data, after `tools/store.sh`). `g365/` = copies of the 2025 runs. See README.
 Chunks: `run_city.slurm` with `--export=ALL,EL_GAIN=1050,ICA_NCHUNK=5,ICA_CHUNK_EVENTS=10000`; array task t →
 file i = (t-1)/5+1, chunk c = (t-1)%5, events [c·10000, (c+1)·10000).
 
@@ -57,8 +58,10 @@ Fiber S1 in detsim is a placeholder (60 PMT S1 waveforms copied into 108 channel
 - Full detsim LAUNCHED 2026-11-21: fibers 8100528, PMTs 8100529 (array 2-200). Command: `./submit.sh detsim <fibers|pmts> 20250626_Next100_50Kev_ELoff_Kr --chunks 5x10000
   --mem 4G --time 12:00:00` (dry run; array 2-200, task 1 already done). submit.sh now has `--chunks NxE`, `--mem`,
   `--time`; use the same `--chunks` for hypathia/dorothea. Ask Marian before `--submit`.
-- Before hypathia: its input path in `pipeline.sh` still points to `$ICA_OUT` (scratch); change it to the
-  `/data` copy (`/data/marian/IC_ANALYSIS/...`, see `tools/store.sh`).
+- 2026-11-25: layout changed to `<city>/<det>/g<gain>/` (Marian's choice); all gain-1050 outputs moved on /data,
+  2025 outputs copied to `g365/`. `pipeline.sh` reads the previous step from /data when stored there; `submit.sh`
+  counts outputs already on /data as done. Notebooks: one "change only this cell" (`SAMPLE`, `GAIN`, `FILE`, `CHUNK`),
+  files found with `paths.file` / `paths.files`, `paths.show()` lists what exists. `USE_NEW`, `old_files`, `new_files` removed.
 - `icana/paths`: `file_index` / `chunk_index` handle chunk files `<sample>_<i>_<c>`; `EL_GAIN` defaults to 1050.
 - Plots: `icana/plots.py` reproduces the 2025 notebook plots (`set_style`, `hits_projections`, `waveforms`,
   `fib_vs_pmt`, `save` → `work/figures/*.pdf`). Also `pmap`, `dst_overview`, `dst_compare`, `peak_fit`,
@@ -68,5 +71,5 @@ Fiber S1 in detsim is a placeholder (60 PMT S1 waveforms copied into 108 channel
 ## Notebooks (one per step; header cell says purpose, inputs, checks)
 00 inventory of all files and settings · 01 nexus inputs · 02 light tables (fiber/PMT ratio prediction) ·
 03 detsim waveforms (+ slim check) · 04 hypathia PMAPs · 05 dorothea Kr resolution · 06 Q_bb (skeleton) ·
-07 fiber S1 from nexus vs dark counts. `USE_NEW = False` reads the 2025 outputs, `True` the new ones.
+07 fiber S1 from nexus vs dark counts. `GAIN = 365` reads the 2025 outputs, `1050` the new ones.
 Executed copies: `sbatch slurm/run_notebook.slurm notebooks/<nb>` (ask first) → `work/executed/`.

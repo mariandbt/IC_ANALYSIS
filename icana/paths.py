@@ -1,12 +1,10 @@
-"""Where everything is. Inputs are read only; new outputs go under ICA_OUT."""
+"""Where everything is. Inputs are read only; new outputs go under ICA_OUT (/scratch), long-term copies under ICA_STORE (/data)."""
 import os, glob
 
 NEXUS_DIR   = os.environ.get("NEXUS_DIR",  "/data/marian/s2simulation")
-OLD_IC_DIR  = os.environ.get("OLD_IC_DIR", "/data/marian/IC")
 ICA_OUT     = os.environ.get("ICA_OUT",    "/scratch/marian/IC_ANALYSIS_OUT")
 ICA_STORE   = os.environ.get("ICA_STORE",  "/data/marian/IC_ANALYSIS")   # long-term copies (tools/store.sh)
 ICDIR       = os.environ.get("ICDIR",      "")
-OLD_ICCOURSE = "/scratch/marian/ic-course/data"          # matched 1Kev Dorothea outputs (2025)
 
 S2_TABLE_FIBERS = "/data/marian/IC/LT/20250408_s2_table.h5"
 S2_TABLE_PMTS   = os.path.join(ICDIR, "database/test_data/NEXT100_S2_LT.h5")
@@ -14,14 +12,49 @@ S1_TABLE_PMTS   = os.path.join(ICDIR, "database/test_data/NEXT100_S1_LT.h5")
 
 EL_GAIN = int(os.environ.get("EL_GAIN", 1050))   # same default as env.sh (the Jupyter kernel does not pass EL_GAIN)
 
-def new_files(sample, det, city, el_gain=None):
-    """Outputs of this repository: <root>/<sample>/<det>_g<gain>/<city>/<sample>_<i>.<city>.h5, sorted by index.
-    Looks in $ICA_OUT (/scratch) first and, if nothing is there, in $ICA_STORE (/data, after tools/store.sh)."""
-    g = EL_GAIN if el_gain is None else el_gain
-    for root in (ICA_OUT, ICA_STORE):
-        fs = glob.glob(os.path.join(root, sample, f"{det}_g{g}", city, f"{sample}_*.{city}.h5"))
-        if fs: break
-    return sorted(fs, key=lambda p: (file_index(p), chunk_index(p) or 0))
+# Layout, the same on /data (ICA_STORE) and /scratch (ICA_OUT):
+#     IC_ANALYSIS/<city>/<det>/g<gain>/<sample>_<file>[_<chunk>].<city>.h5
+#     city = detsim, hypathia, dorothea;  det = fibers, pmts;  gain = 1050 (new runs), 365 (2025 runs)
+CITIES, DETECTORS = ("detsim", "hypathia", "dorothea"), ("fibers", "pmts")
+
+def files(city, det, gain, sample, file=None):
+    """All files of one run, sorted by file and chunk. /data first; /scratch adds files not copied to /data yet.
+    file=None: every file; file=1: all chunks of file 1."""
+    found = {}
+    for root in (ICA_STORE, ICA_OUT):
+        for f in glob.glob(os.path.join(root, city, det, f"g{gain}", f"{sample}_*.{city}.h5")):
+            found.setdefault(os.path.basename(f), f)
+    fs = sorted(found.values(), key=lambda p: (file_index(p), chunk_index(p) or 0))
+    if file is not None: fs = [f for f in fs if file_index(f) == int(file)]
+    if not fs:
+        raise FileNotFoundError(f"no {city} files for {det}, gain {gain}, {sample}" + (f", file {file}" if file is not None else "")
+                                + ". Run paths.show() to see what exists.")
+    return fs
+
+def file(city, det, gain, sample, i, chunk=0):
+    """One file: <sample>_<i>.<city>.h5, or chunk <chunk> of it for runs split in chunks (50Kev at gain 1050)."""
+    fs = files(city, det, gain, sample, i)
+    if len(fs) == 1: return fs[0]
+    fs = [f for f in fs if chunk_index(f) == int(chunk)]
+    if not fs: raise FileNotFoundError(f"file {i} of {sample} has no chunk {chunk}")
+    return fs[0]
+
+def show(sample=None):
+    """Table of what exists: number of files per sample, city, detector and gain (on /data + /scratch)."""
+    rows = {}
+    for root in (ICA_STORE, ICA_OUT):
+        for f in glob.glob(os.path.join(root, "*", "*", "g*", "*.h5")):
+            city, det, g = f.split("/")[-4:-1]
+            if city not in CITIES: continue
+            s = os.path.basename(f).split(f".{city}.")[0]
+            n = _numbers(f); s = "_".join(s.split("_")[:len(s.split("_")) - len(n)]) if n else s.rsplit("_", 1)[0]
+            if sample and s != sample: continue
+            rows.setdefault((s, city, det, int(g[1:])), set()).add(os.path.basename(f))
+    import pandas as pd
+    t = pd.Series({k: len(v) for k, v in rows.items()}, dtype=int)
+    if t.empty: print("nothing found"); return t
+    t.index.names = ["sample", "city", "det", "gain"]
+    return t.unstack(["det", "gain"]).fillna(0).astype(int)
 
 def _numbers(path):
     """Trailing numbers of the name: <sample>_<i> -> [i]; chunk files <sample>_<i>_<c> -> [i, c]."""
@@ -37,23 +70,6 @@ def file_index(path):
 def chunk_index(path):
     """Chunk number c of <sample>_<i>_<c>.<city>.h5, None for whole-file outputs."""
     n = _numbers(path); return n[1] if len(n) == 2 else None
-
-# 2025 outputs, for comparison (produced with the same configs, IC fibers branch)
-OLD = {
-    ("20250626_Next100_50Kev_ELoff_Kr", "fibers", "dorothea"): [f"{OLD_IC_DIR}/dorothea/20250626_Next100_50Kev_ELoff_Kr_0-40.dorothea.h5"],
-    ("20250624_Next100_1Kev_ELoff_Kr",  "fibers", "dorothea"): [f"{OLD_ICCOURSE}/20250624_Next100_1Kev_ELoff_Kr_ALL.dorothea.h5"],
-    ("20250624_Next100_1Kev_ELoff_Kr",  "pmts",   "dorothea"): [f"{OLD_ICCOURSE}/20250624_Next100_1Kev_ELoff_Kr_ALL_PMTs.dorothea.h5"],
-}
-def old_files(sample, det, city):
-    if (sample, det, city) in OLD: return OLD[(sample, det, city)]
-    if city in ("detsim", "hypathia"):
-        sub = "PMTs/" if (det == "pmts" and city == "detsim") else ""
-        suf = "_PMTs" if det == "pmts" else ""
-        fs = glob.glob(f"{OLD_IC_DIR}/{city}/{sub}{sample}_*{suf}.{city}.h5")
-        fs = [f for f in fs if "TEST" not in f]
-        if det == "fibers": fs = [f for f in fs if "_PMTs" not in f]
-        return sorted(fs, key=lambda p: file_index(p.replace("_PMTs", "")))
-    return []
 
 def nexus_files(sample):
     fs = glob.glob(f"{NEXUS_DIR}/*/{sample}_*.next.h5")

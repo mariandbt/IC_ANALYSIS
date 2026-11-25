@@ -13,7 +13,7 @@
 #
 # Without --submit nothing is sent: it lists which files are done, missing or to run, shows the
 # config of the first task and prints the sbatch command. With --submit it runs that command.
-# Outputs: $ICA_OUT/<sample>/<det>_g<EL_GAIN>/<city>/.
+# Outputs: $ICA_OUT/<city>/<det>/g<EL_GAIN>/ (/scratch). Outputs already copied to $ICA_STORE (/data) count as done.
 set -euo pipefail
 cd "$(dirname "$0")"
 source env.sh >/dev/null
@@ -34,7 +34,7 @@ for ((i=FIRST; i<=LAST; i++)); do
     if [ "$CITY" = detsim ]; then in=${IN_PATTERN//@I@/$i}; else in=${IN_PATTERN//@I@/$U}; fi
     out=${OUT_PATTERN//@I@/$U}
     [ -n "$AFTER" ] && in="$NEXUS_DIR/$SUB/${SAMPLE}_${i}.next.h5"   # chained: the upstream output does not exist yet
-    if [ ! -f "$in" ]; then MISSING+=($U); elif [ -f "$out" ] && [ $FORCE = 0 ]; then DONE+=($U); else TODO+=($U); TASKS+=($t); fi
+    if [ ! -f "$in" ]; then MISSING+=($U); elif { [ -f "$out" ] || [ -f "${out/#$ICA_OUT/$ICA_STORE}" ]; } && [ $FORCE = 0 ]; then DONE+=($U); else TODO+=($U); TASKS+=($t); fi
   done
 done
 echo "city=$CITY detector=$DET ($DB) sample=$SAMPLE files $FIRST-$LAST  chunks=${NCH}x${CHE}  el_gain=$EL_GAIN"

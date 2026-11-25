@@ -35,10 +35,22 @@ logs/, work/           slurm logs and per-task configs (not in git)
 `00_pipeline_and_inventory` checks that all inputs exist, are readable and were made with the same settings.
 
 ## Where files go (Hyperion rules)
-- Jobs read inputs from `/data` (read-only on compute nodes) and write to **`$ICA_OUT=/scratch/marian/IC_ANALYSIS_OUT/<sample>/<fibers|pmts>_g<EL_GAIN>/<city>/`**.
+All IC outputs, old and new, are in one tree, the same on `/data` and on `/scratch`:
+```
+/data/marian/IC_ANALYSIS/                 ($ICA_STORE, long-term)
+/scratch/marian/IC_ANALYSIS_OUT/          ($ICA_OUT, where jobs write)
+  detsim/  hypathia/  dorothea/           city
+    fibers/  pmts/                        detector
+      g1050/  g365/                       EL gain: 1050 = new runs, 365 = 2025 runs (IC-default diffusion 1.20/0.30)
+        <sample>_<i>[_<c>].<city>.h5      file i, chunk c (50Kev at gain 1050: 5 chunks of 10 000 events)
+```
+- Jobs read inputs from `/data` (read-only on compute nodes; `/scratch` if not stored yet) and write to `/scratch`.
 - `/scratch` has no backup and must stay below 80 % full; quota 2 TB. When a step is finished, copy it to
-  `/data/marian/IC_ANALYSIS` from a **login node** with `bash tools/store.sh <sample>`, then delete it from `/scratch`.
-- The 2025 outputs in `/data/marian/IC` are never written.
+  `/data` from a **login node** with `bash tools/store.sh [city]`, check it, then delete it from `/scratch`.
+- `g365/` holds copies of the 2025 outputs (2026-11-25, `work/copy_2025.sh`; `_PMTs` dropped from the names).
+  The originals in `/data/marian/IC` and `/scratch/marian/ic-course/data` are never written.
+- In Python: `paths.show()` lists what exists; `paths.file(city, det, gain, sample, i, chunk)` gives one file,
+  `paths.files(city, det, gain, sample)` all of them. Each notebook has one cell to change: `SAMPLE`, `GAIN`, `FILE`, `CHUNK`.
 
 ## Running a step (batch)
 ```bash
@@ -89,7 +101,7 @@ cd /scratch/marian/IC_ANALYSIS && source env.sh
   - Diffusion 1.072 / 0.267 mm/√cm: Simón et al. 2018, NEXT-White Kr data at 7.2 bar scaled to 10 bar (valid at
     ~54 V/cm/bar, i.e. ~540 V/cm). IC defaults were 1.20 / 0.30 with no stated source.
   - Other gains: 365 (IC default, 2025 runs), 782 (NEXT-100 at 4 bar now). Run with `EL_GAIN=<value> ./submit.sh ...`;
-    outputs carry the gain in their path (`<det>_g1050/`).
+    outputs carry the gain in their path (`<city>/<det>/g1050/`).
 - S2 tables: fibers `20250408_s2_table.h5` (per EL photon, from the 500 × 100k `20240405_Next100_ie_s2` runs);
   PMTs IC `NEXT100_S2_LT.h5`. At R < 30 mm: fibers 1.35 %, PMTs 0.87 % per EL photon (ratio 1.56).
 - S1: the PMT table for both. For fibers it is a placeholder: `scale_and_repeat_s1` copies the 60 PMT S1
